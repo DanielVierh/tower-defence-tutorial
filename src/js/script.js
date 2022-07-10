@@ -13,8 +13,6 @@ for (let i = 0; i < placementTilesData.length; i += 20) {
     placementTilesData2D.push(placementTilesData.slice(i, i + 20));
 }
 
-
-
 const placementTiles = [];
 
 placementTilesData2D.forEach((row, y) => {
@@ -32,17 +30,14 @@ placementTilesData2D.forEach((row, y) => {
         }
     });
 });
-console.log(placementTiles);
 const image = new Image();
 image.onload = () => {
     animate();
 };
 image.src = 'assets/tower_defence_level1v2.png';
 
-
-
 const enemies = [];
-for (let i = 1; i < 10; i++) {
+for (let i = 0; i < 10; i++) {
     const xOffset = i * 150;
     enemies.push(
         new Enemy({
@@ -51,8 +46,13 @@ for (let i = 1; i < 10; i++) {
     );
 }
 
-const buildings = []
-let activeTile = undefined
+const buildings = [];
+let activeTile = undefined;
+
+
+
+
+
 
 function animate() {
     requestAnimationFrame(animate);
@@ -64,13 +64,51 @@ function animate() {
     placementTiles.forEach((tile) => {
         tile.update(mouse);
     });
+
+    buildings.forEach((building) => {
+        building.draw();
+
+        building.projectiles.forEach(projectile => {
+            projectile.update()
+        })
+    });
 }
 
 const mouse = {
     x: undefined,
     y: undefined,
 };
+
+canvas.addEventListener('click', (event) => {
+    if (activeTile && !activeTile.isOccupied) {
+        buildings.push(
+            new Building({
+                position: {
+                    x: activeTile.position.x,
+                    y: activeTile.position.y,
+                },
+            }),
+        );
+        activeTile.isOccupied = true;
+    }
+    console.log(buildings);
+});
+
 window.addEventListener('mousemove', (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;
+
+    activeTile = null;
+    for (let i = 0; i < placementTiles.length; i++) {
+        const tile = placementTiles[i];
+        if (
+            mouse.x > tile.position.x &&
+            mouse.x < tile.position.x + tile.size &&
+            mouse.y > tile.position.y &&
+            mouse.y < tile.position.y + tile.size
+        ) {
+            activeTile = tile;
+            break;
+        }
+    }
 });
