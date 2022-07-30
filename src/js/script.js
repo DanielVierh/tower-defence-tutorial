@@ -36,50 +36,99 @@ image.onload = () => {
 };
 image.src = 'assets/tower_defence_level1v2.png';
 
-const enemies = [];
-for (let i = 0; i < 10; i++) {
-    const xOffset = i * 150;
-    enemies.push(
-        new Enemy({
-            position: {x: waypoints[0].x - xOffset, y: waypoints[0].y},
-        }),
-    );
+let enemies = [];
+
+function spawnEnemys(spawnCount) {
+    for (let i = 0; i < spawnCount + 1; i++) {
+        const xOffset = i * 150;
+        enemies.push(
+            new Enemy({
+                position: {x: waypoints[0].x - xOffset, y: waypoints[0].y},
+            }),
+        );
+    }
 }
+
+
 
 const buildings = [];
 let activeTile = undefined;
+let enemyCount = 3;
+let hearts = 10;
 
-
-
-
-
+spawnEnemys(enemyCount);
 
 function animate() {
-    requestAnimationFrame(animate);
+    const animationId = requestAnimationFrame(animate);
     c.drawImage(image, 0, 0);
-    enemies.forEach((enemy) => {
+    for(let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i]
         enemy.update();
-    });
+
+        if(enemy.position.x > canvas.width) {
+            hearts --;
+            enemies.splice(i, 1)
+            if(hearts === 0) {
+                document.querySelector('#gameOver').style.display = 'flex';
+                window.cancelAnimationFrame(animationId)
+            }
+            console.log(`Leben: ${hearts} / Enemys: ${enemies.length}`);
+        }
+    }
+
+    if(enemies.length === 0) {
+        enemyCount += 2;
+        spawnEnemys(enemyCount)
+    }
 
     placementTiles.forEach((tile) => {
         tile.update(mouse);
     });
 
     buildings.forEach((building) => {
-        building.draw();
+        building.update()
+        building.target = null
+        const validEnemies = enemies.filter(enemy => {
+            const xDifference = enemy.center.x - building.center.x
+            const yDifference = enemy.center.y - building.center.y
+            const distance = Math.hypot(xDifference, yDifference)
+            return distance < enemy.radius + building.radius
+        })
+        building.target = validEnemies[0]
+        // console.log(validEnemies);
 
-        building.projectiles.forEach((projectile, i) => {
+        for(let i = building.projectiles.length - 1; i >= 0; i--) {
+            const projectile = building.projectiles[i]
+
             projectile.update()
 
             const xDifference = projectile.enemy.center.x - projectile.position.x
             const yDifference = projectile.enemy.center.y - projectile.position.y
             const distance = Math.hypot(xDifference, yDifference)
+
+            // When a projectile hits an enemy
             if(distance < projectile.enemy.radius + projectile.radius) {
-                console.log("Treffer");
+                // Enemy health and enemy removal
+                projectile.enemy.health -= 20
+                if(projectile.enemy.health <= 0) {
+                   const enemyIndex = enemies.findIndex((enemy) => {
+                        return projectile.enemy === enemy
+                    })
+                    if(enemyIndex > -1) enemies.splice(enemyIndex, 1)
+                }
+                // Tracking total amount of enemys
+                console.log(`Enemy Length: ${enemies.length}`);
+                if(enemies.length === 1) {
+                    enemies = []
+                    enemyCount += 2
+                    spawnEnemys(enemyCount)
+                }
+
+                console.log(projectile.enemy.health);
                 building.projectiles.splice(i, 1)
             }
-            console.log(distance);
-        })
+            // console.log(distance);
+        }
     });
 }
 
@@ -100,7 +149,7 @@ canvas.addEventListener('click', (event) => {
         );
         activeTile.isOccupied = true;
     }
-    console.log(buildings);
+    // console.log(buildings);
 });
 
 window.addEventListener('mousemove', (event) => {

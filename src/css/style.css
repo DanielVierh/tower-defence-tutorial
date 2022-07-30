@@ -1,3 +1,22 @@
 body {
     background-color: black;
 }
+
+.parnt {
+    position: relative;
+    display: inline-block;
+}
+
+.chld {
+    position: absolut;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 72px;
+    -webkit-text-stroke: 3px red;
+}
