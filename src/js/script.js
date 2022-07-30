@@ -68,8 +68,17 @@ function animate() {
     buildings.forEach((building) => {
         building.draw();
 
-        building.projectiles.forEach(projectile => {
+        building.projectiles.forEach((projectile, i) => {
             projectile.update()
+
+            const xDifference = projectile.enemy.center.x - projectile.position.x
+            const yDifference = projectile.enemy.center.y - projectile.position.y
+            const distance = Math.hypot(xDifference, yDifference)
+            if(distance < projectile.enemy.radius + projectile.radius) {
+                console.log("Treffer");
+                building.projectiles.splice(i, 1)
+            }
+            console.log(distance);
         })
     });
 }
