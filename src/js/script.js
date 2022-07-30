@@ -1,8 +1,10 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
+
 canvas.width = 1280;
 canvas.height = 768;
+canvas.style.zIndex = 1;
 
 c.fillStyle = 'white';
 c.fillRect(0, 0, canvas.width, canvas.height);
@@ -55,6 +57,8 @@ const buildings = [];
 let activeTile = undefined;
 let enemyCount = 3;
 let hearts = 10;
+let coins = 100
+document.getElementById("coins").innerHTML = coins
 
 spawnEnemys(enemyCount);
 
@@ -67,12 +71,12 @@ function animate() {
 
         if(enemy.position.x > canvas.width) {
             hearts --;
+            document.getElementById("hearts").innerHTML = hearts
             enemies.splice(i, 1)
             if(hearts === 0) {
                 document.querySelector('#gameOver').style.display = 'flex';
                 window.cancelAnimationFrame(animationId)
             }
-            console.log(`Leben: ${hearts} / Enemys: ${enemies.length}`);
         }
     }
 
@@ -114,7 +118,11 @@ function animate() {
                    const enemyIndex = enemies.findIndex((enemy) => {
                         return projectile.enemy === enemy
                     })
-                    if(enemyIndex > -1) enemies.splice(enemyIndex, 1)
+                    if(enemyIndex > -1) {
+                        enemies.splice(enemyIndex, 1)
+                        coins += 25
+                        document.getElementById("coins").innerHTML = coins
+                    }
                 }
                 // Tracking total amount of enemys
                 console.log(`Enemy Length: ${enemies.length}`);
@@ -138,7 +146,9 @@ const mouse = {
 };
 
 canvas.addEventListener('click', (event) => {
-    if (activeTile && !activeTile.isOccupied) {
+    if (activeTile && !activeTile.isOccupied && coins >= 50) {
+        coins -= 50
+        document.getElementById("coins").innerHTML = coins
         buildings.push(
             new Building({
                 position: {
