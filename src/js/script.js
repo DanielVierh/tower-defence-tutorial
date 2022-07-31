@@ -1,7 +1,6 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
-
 canvas.width = 1280;
 canvas.height = 768;
 canvas.style.zIndex = 1;
@@ -51,38 +50,47 @@ function spawnEnemys(spawnCount) {
     }
 }
 
-
-
 const buildings = [];
 let activeTile = undefined;
 let enemyCount = 3;
 let hearts = 10;
-let coins = 100
-document.getElementById("coins").innerHTML = coins
+let coins = 100;
+const explosions = [];
+document.getElementById('coins').innerHTML = coins;
 
 spawnEnemys(enemyCount);
 
 function animate() {
     const animationId = requestAnimationFrame(animate);
     c.drawImage(image, 0, 0);
-    for(let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i]
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
         enemy.update();
 
-        if(enemy.position.x > canvas.width) {
-            hearts --;
-            document.getElementById("hearts").innerHTML = hearts
-            enemies.splice(i, 1)
-            if(hearts === 0) {
+        if (enemy.position.x > canvas.width) {
+            hearts--;
+            document.getElementById('hearts').innerHTML = hearts;
+            enemies.splice(i, 1);
+            if (hearts === 0) {
                 document.querySelector('#gameOver').style.display = 'flex';
-                window.cancelAnimationFrame(animationId)
+                window.cancelAnimationFrame(animationId);
             }
         }
     }
 
-    if(enemies.length === 0) {
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        const explosion = explosions[i]
+        explosion.draw()
+        explosion.update()
+
+        if(explosion.frames.current >= explosion.frames.max - 1) {
+            explosions.splice(i, 1)
+        }
+    }
+
+    if (enemies.length === 0) {
         enemyCount += 2;
-        spawnEnemys(enemyCount)
+        spawnEnemys(enemyCount);
     }
 
     placementTiles.forEach((tile) => {
@@ -90,52 +98,57 @@ function animate() {
     });
 
     buildings.forEach((building) => {
-        building.update()
-        building.target = null
-        const validEnemies = enemies.filter(enemy => {
-            const xDifference = enemy.center.x - building.center.x
-            const yDifference = enemy.center.y - building.center.y
-            const distance = Math.hypot(xDifference, yDifference)
-            return distance < enemy.radius + building.radius
-        })
-        building.target = validEnemies[0]
-        // console.log(validEnemies);
+        building.update();
+        building.target = null;
+        const validEnemies = enemies.filter((enemy) => {
+            const xDifference = enemy.center.x - building.center.x;
+            const yDifference = enemy.center.y - building.center.y;
+            const distance = Math.hypot(xDifference, yDifference);
+            return distance < enemy.radius + building.radius;
+        });
+        building.target = validEnemies[0];
 
-        for(let i = building.projectiles.length - 1; i >= 0; i--) {
-            const projectile = building.projectiles[i]
+        for (let i = building.projectiles.length - 1; i >= 0; i--) {
+            const projectile = building.projectiles[i];
 
-            projectile.update()
+            projectile.update();
 
-            const xDifference = projectile.enemy.center.x - projectile.position.x
-            const yDifference = projectile.enemy.center.y - projectile.position.y
-            const distance = Math.hypot(xDifference, yDifference)
+            const xDifference =
+                projectile.enemy.center.x - projectile.position.x;
+            const yDifference =
+                projectile.enemy.center.y - projectile.position.y;
+            const distance = Math.hypot(xDifference, yDifference);
 
             // When a projectile hits an enemy
-            if(distance < projectile.enemy.radius + projectile.radius) {
+            if (distance < projectile.enemy.radius + projectile.radius) {
                 // Enemy health and enemy removal
-                projectile.enemy.health -= 20
-                if(projectile.enemy.health <= 0) {
-                   const enemyIndex = enemies.findIndex((enemy) => {
-                        return projectile.enemy === enemy
-                    })
-                    if(enemyIndex > -1) {
-                        enemies.splice(enemyIndex, 1)
-                        coins += 25
-                        document.getElementById("coins").innerHTML = coins
+                projectile.enemy.health -= 20;
+                if (projectile.enemy.health <= 0) {
+                    const enemyIndex = enemies.findIndex((enemy) => {
+                        return projectile.enemy === enemy;
+                    });
+                    if (enemyIndex > -1) {
+                        enemies.splice(enemyIndex, 1);
+                        coins += 15;
+                        document.getElementById('coins').innerHTML = coins;
                     }
                 }
                 // Tracking total amount of enemys
-                console.log(`Enemy Length: ${enemies.length}`);
-                if(enemies.length === 1) {
-                    enemies = []
-                    enemyCount += 2
-                    spawnEnemys(enemyCount)
+                if (enemies.length === 0) {
+                    enemies = [];
+                    enemyCount += 2;
+                    spawnEnemys(enemyCount);
                 }
-
-                console.log(projectile.enemy.health);
-                building.projectiles.splice(i, 1)
+                explosions.push(
+                    new Sprite({
+                        position: {x: projectile.position.x, y: projectile.position.y},
+                        imageSrc: './../../assets/explosion.png',
+                        frames: {max: 4},
+                        offset: {x: 0, y: 0},
+                    }),
+                );
+                building.projectiles.splice(i, 1);
             }
-            // console.log(distance);
         }
     });
 }
@@ -147,8 +160,8 @@ const mouse = {
 
 canvas.addEventListener('click', (event) => {
     if (activeTile && !activeTile.isOccupied && coins >= 50) {
-        coins -= 50
-        document.getElementById("coins").innerHTML = coins
+        coins -= 50;
+        document.getElementById('coins').innerHTML = coins;
         buildings.push(
             new Building({
                 position: {
@@ -158,8 +171,10 @@ canvas.addEventListener('click', (event) => {
             }),
         );
         activeTile.isOccupied = true;
+        buildings.sort((a, b) => {
+            return a.position.y - b.position.y;
+        });
     }
-    // console.log(buildings);
 });
 
 window.addEventListener('mousemove', (event) => {

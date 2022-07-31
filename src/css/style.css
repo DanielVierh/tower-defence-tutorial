@@ -19,6 +19,7 @@ body {
     justify-content: center;
     color: white;
     font-size: 72px;
+    font-weight: bold;
     background-color: rgba(0,0,0,.6);
     -webkit-text-stroke: 3px black;
 }
