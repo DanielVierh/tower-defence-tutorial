@@ -38,13 +38,14 @@ image.onload = () => {
 image.src = 'assets/tower_defence_level1v2.png';
 
 let enemies = [];
+let currentSpeed = 2;
 
-function spawnEnemys(spawnCount) {
+function spawnEnemys(spawnCount, currentSpeed) {
     for (let i = 0; i < spawnCount + 1; i++) {
         const xOffset = i * 150;
         enemies.push(
             new Enemy({
-                position: {x: waypoints[0].x - xOffset, y: waypoints[0].y},
+                position: {x: waypoints[0].x - xOffset, y: waypoints[0].y}, cspeed: currentSpeed,
             }),
         );
     }
@@ -58,7 +59,7 @@ let coins = 100;
 const explosions = [];
 document.getElementById('coins').innerHTML = coins;
 
-spawnEnemys(enemyCount);
+spawnEnemys(enemyCount, currentSpeed);
 
 function animate() {
     const animationId = requestAnimationFrame(animate);
@@ -129,15 +130,16 @@ function animate() {
                     });
                     if (enemyIndex > -1) {
                         enemies.splice(enemyIndex, 1);
-                        coins += 15;
+                        coins += 5;
                         document.getElementById('coins').innerHTML = coins;
                     }
                 }
                 // Tracking total amount of enemys
-                if (enemies.length === 0) {
+                if (enemies.length === 1) {
                     enemies = [];
                     enemyCount += 2;
-                    spawnEnemys(enemyCount);
+                    currentSpeed += 0.15;
+                    spawnEnemys(enemyCount, currentSpeed);
                 }
                 explosions.push(
                     new Sprite({
@@ -151,6 +153,8 @@ function animate() {
             }
         }
     });
+
+    console.log(`Enemies: ${enemies.length} // Speed: ${currentSpeed}`);
 }
 
 const mouse = {

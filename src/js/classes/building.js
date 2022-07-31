@@ -25,10 +25,10 @@ class Building extends Sprite {
 
     draw() {
         super.draw();
-        c.fillStyle = 'rgba(0,0,255,0.08)';
-        c.beginPath();
-        c.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2);
-        c.fill();
+        // c.fillStyle = 'rgba(0,0,255,0.08)';
+        // c.beginPath();
+        // c.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2);
+        // c.fill();
     }
 
     update() {
