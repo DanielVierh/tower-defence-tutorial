@@ -45,7 +45,7 @@ function spawnEnemys(spawnCount, currentSpeed) {
         const xOffset = i * 150;
         enemies.push(
             new Enemy({
-                position: {x: waypoints[0].x - xOffset, y: waypoints[0].y}, cspeed: currentSpeed,
+                position: {x: waypoints[0].x - xOffset, y: waypoints[0].y}, cspeed: Math.random() * (currentSpeed + 0.7 - currentSpeed) + currentSpeed ,
             }),
         );
     }
@@ -55,7 +55,7 @@ const buildings = [];
 let activeTile = undefined;
 let enemyCount = 3;
 let hearts = 10;
-let coins = 100;
+let coins = 120;
 const explosions = [];
 document.getElementById('coins').innerHTML = coins;
 
@@ -157,7 +157,7 @@ function animate() {
         }
     });
 
-    console.log(`Enemies: ${enemies.length} // Speed: ${currentSpeed}`);
+    // console.log(`Enemies: ${enemies.length} // Speed: ${currentSpeed} // Enemies ${enemies}`);
 }
 
 const mouse = {
