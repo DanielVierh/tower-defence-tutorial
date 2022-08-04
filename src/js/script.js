@@ -137,13 +137,7 @@ function animate() {
                         document.getElementById('coins').innerHTML = coins;
                     }
                 }
-                // Tracking total amount of enemys
-                // if (enemies.length === 1) {
-                //     enemies = [];
-                //     enemyCount += 2;
-                //     currentSpeed += 0.15;
-                //     spawnEnemys(enemyCount, currentSpeed);
-                // }
+
                 explosions.push(
                     new Sprite({
                         position: {x: projectile.position.x, y: projectile.position.y},
