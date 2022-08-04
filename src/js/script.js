@@ -41,7 +41,7 @@ let enemies = [];
 let currentSpeed = 2;
 
 function spawnEnemys(spawnCount, currentSpeed) {
-    for (let i = 0; i < spawnCount + 1; i++) {
+    for (let i = 1; i < spawnCount + 1; i++) {
         const xOffset = i * 150;
         enemies.push(
             new Enemy({
@@ -70,8 +70,9 @@ function animate() {
 
         if (enemy.position.x > canvas.width) {
             hearts--;
-            document.getElementById('hearts').innerHTML = hearts;
             enemies.splice(i, 1);
+            document.getElementById('hearts').innerHTML = hearts;
+
             if (hearts === 0) {
                 document.querySelector('#gameOver').style.display = 'flex';
                 window.cancelAnimationFrame(animationId);
@@ -89,9 +90,11 @@ function animate() {
         }
     }
 
+ // tracking total amount of enemies
     if (enemies.length === 0) {
         enemyCount += 2;
-        spawnEnemys(enemyCount);
+        currentSpeed += 0.15;
+        spawnEnemys(enemyCount, currentSpeed);
     }
 
     placementTiles.forEach((tile) => {
@@ -135,12 +138,12 @@ function animate() {
                     }
                 }
                 // Tracking total amount of enemys
-                if (enemies.length === 1) {
-                    enemies = [];
-                    enemyCount += 2;
-                    currentSpeed += 0.15;
-                    spawnEnemys(enemyCount, currentSpeed);
-                }
+                // if (enemies.length === 1) {
+                //     enemies = [];
+                //     enemyCount += 2;
+                //     currentSpeed += 0.15;
+                //     spawnEnemys(enemyCount, currentSpeed);
+                // }
                 explosions.push(
                     new Sprite({
                         position: {x: projectile.position.x, y: projectile.position.y},
